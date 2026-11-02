@@ -1,0 +1,55 @@
+### Particle POC manual requests (VS Code REST Client / JetBrains HTTP client)
+@base = http://localhost:8100
+@practiceId = 11111111-1111-4111-8111-111111111111
+@elevaidId = 33333333-3333-4333-8333-333333333333
+
+### Health
+GET {{base}}/health
+
+### Register the Particle sandbox test patient (from the Prod-Sandbox Signal collection)
+POST {{base}}/particle-records/patients
+Content-Type: application/json
+
+{
+  "practiceId": "{{practiceId}}",
+  "elevaidId": "{{elevaidId}}",
+  "firstName": "Elvira",
+  "lastName": "Valadez-Nucleus",
+  "dob": "1970-12-26",
+  "genderAtBirth": "F",
+  "address": { "city": "Boston", "state": "MA", "zip": "02215" },
+  "subscribeMonitoring": true,
+  "requestedBy": "dr-test"
+}
+
+### Physician "Sync"
+POST {{base}}/particle-records/pull
+Content-Type: application/json
+
+{ "practiceId": "{{practiceId}}", "elevaidId": "{{elevaidId}}", "requestedBy": "dr-test" }
+
+### Status (no clinical data)
+GET {{base}}/particle-records/practices/{{practiceId}}/patients/{{elevaidId}}/status
+
+### Parsed data (PHI)
+GET {{base}}/particle-records/practices/{{practiceId}}/patients/{{elevaidId}}/parsed
+
+### Signal events received
+GET {{base}}/particle-records/practices/{{practiceId}}/patients/{{elevaidId}}/signal-events
+
+### Sandbox: fire a simulated admit alert at our webhook (needs a public HTTPS tunnel)
+POST {{base}}/particle-records/sandbox/trigger
+Content-Type: application/json
+
+{
+  "practiceId": "{{practiceId}}",
+  "elevaidId": "{{elevaidId}}",
+  "workflow": "ADMIT_TRANSITION_ALERT",
+  "callbackUrl": "https://YOUR-TUNNEL.example.com/particle-records/webhook"
+}
+
+### Parser-only: ingest a Flat payload you already have (paste flat_data.json contents into "flat")
+POST {{base}}/particle-records/ingest-flat
+Content-Type: application/json
+
+{ "practiceId": "{{practiceId}}", "elevaidId": "{{elevaidId}}", "flat": { "problems": [] } }

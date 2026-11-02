@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+.env
+# Local POC storage holds PHI pulled from Particle. Never commit it.
+data/
